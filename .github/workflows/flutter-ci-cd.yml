@@ -59,9 +59,9 @@ jobs:
       - name: Install Appium Deps
         run: pip install -r appium_testing/requirements.txt
 
-      - name: Run Appium Suite
+      - name: Run Appium Master Suite
         run: |
-          pytest appium_testing/tests/test_mobile_login.py
+          pytest appium_testing/tests/master_suite.py
         continue-on-error: true
 
       - name: Upload Mobile Excel Report
