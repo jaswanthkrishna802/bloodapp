@@ -24,6 +24,7 @@ def create_excel_report(test_results, filename='report_mobile.xlsx'):
         else:
             status_cell.fill = fail_fill
 
-    save_path = os.path.join(os.path.dirname(__file__), '..', filename)
+    # Save to the project root (CWD in CI)
+    save_path = os.path.join(os.getcwd(), filename)
     wb.save(save_path)
-    print(f"Mobile Report generated: {save_path}")
+    print(f"MOBILE REPORT SAVED AT: {save_path}")

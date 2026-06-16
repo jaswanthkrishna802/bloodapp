@@ -1,5 +1,6 @@
 const ExcelJS = require('exceljs');
 const path = require('path');
+const fs = require('fs');
 
 async function createExcelReport(testResults, filename = 'report_web.xlsx') {
     const workbook = new ExcelJS.Workbook();
@@ -24,9 +25,10 @@ async function createExcelReport(testResults, filename = 'report_web.xlsx') {
         }
     });
 
-    const filePath = path.join(__dirname, '..', filename);
+    // Save to the project root for easiest discovery by CI
+    const filePath = path.join(process.cwd(), filename);
     await workbook.xlsx.writeFile(filePath);
-    console.log(`Web Report generated: ${filePath}`);
+    console.log(`WEB REPORT SAVED AT: ${filePath}`);
 }
 
 module.exports = { createExcelReport };
