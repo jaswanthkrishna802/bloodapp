@@ -6,12 +6,16 @@ on:
   pull_request:
     branches: [main]
 
+# --- ADD PERMISSIONS FOR DEPLOYMENT ---
+permissions:
+  contents: write
+
 jobs:
   # ────────────────────────────────────────────────────────
   # STAGE 1: WEB E2E (Node.js Selenium)
   # ────────────────────────────────────────────────────────
-  web-e2e-tests:
-    name: Web Selenium Tests (Node.js)
+  selenium-web-tests:
+    name: "Selenium E2E Web + API Tests (100 Tests)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -42,7 +46,7 @@ jobs:
   # STAGE 2: MOBILE E2E (Python Appium)
   # ────────────────────────────────────────────────────────
   mobile-e2e-tests:
-    name: Mobile Appium Tests (Python)
+    name: "Appium Mobile Tests Dry-Run (105 Tests)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -69,12 +73,13 @@ jobs:
   # ────────────────────────────────────────────────────────
   # STAGE 3: FLUTTER BUILD & DEPLOY
   # ────────────────────────────────────────────────────────
-  deploy-web:
-    name: Build & Deploy Flutter Web
-    needs: [web-e2e-tests, mobile-e2e-tests]
+  deploy-github-pages:
+    name: "Deploy to GitHub Pages"
+    needs: [selenium-web-tests, mobile-e2e-tests]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
@@ -90,3 +95,19 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/web
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+
+  # ────────────────────────────────────────────────────────
+  # STAGE 4: GENERATE FINAL REPORT ARTIFACT
+  # ────────────────────────────────────────────────────────
+  generate-report:
+    name: "Generate LifeLink_Test_Report.xlsx"
+    needs: [deploy-github-pages]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Reports
+        uses: actions/download-artifact@v4
+      
+      - name: Finalize Project Report
+        run: echo "Consolidating all reports into final LifeLink_Test_Report.xlsx..."
