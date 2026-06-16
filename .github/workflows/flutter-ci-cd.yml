@@ -1,62 +1,87 @@
-name: Flutter Selenium E2E + Deploy
+name: Blood App CI/CD - E2E Master Suite
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-  # ─────────────────────────────────────────────
-  # JOB 1: Selenium Web Tests against GitHub Pages
-  # ─────────────────────────────────────────────
-  selenium-web-tests:
-    name: Selenium Web E2E Tests
+  # ────────────────────────────────────────────────────────
+  # STAGE 1: WEB E2E (Node.js Selenium)
+  # ────────────────────────────────────────────────────────
+  web-e2e-tests:
+    name: Web Selenium Tests (Node.js)
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Selenium & Reporting Deps
+        run: |
+          cd testing/web
+          npm install
+
+      - name: Run Web E2E Suite
+        run: |
+          cd testing/web
+          npm test
+        continue-on-error: true
+
+      - name: Upload Web Excel Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: web-test-report-xlsx
+          path: testing/report_web.xlsx
+
+  # ────────────────────────────────────────────────────────
+  # STAGE 2: MOBILE E2E (Python Appium)
+  # ────────────────────────────────────────────────────────
+  mobile-e2e-tests:
+    name: Mobile Appium Tests (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Install Python Test Dependencies
+      - name: Install Python Deps
         run: pip install -r testing/requirements.txt
 
-      - name: Setup ChromeDriver
-        uses: nanasess/setup-chromedriver@v2
-
-      - name: Run Selenium Tests (Web)
-        run: pytest testing/web/ --html=testing/web/report.html
+      - name: Run Mobile E2E Suite
+        run: |
+          # Note: Actual Appium requires an emulator/real device. 
+          # In CI, we run the suite logic or unit-test the setup.
+          pytest testing/mobile/test_mobile_login.py
         continue-on-error: true
 
-      - name: Upload Web Test Report
+      - name: Upload Mobile Excel Report
         uses: actions/upload-artifact@v3
-        if: always()
         with:
-          name: selenium-web-report
-          path: testing/web/report.html
+          name: mobile-test-report-xlsx
+          path: testing/report_mobile.xlsx
 
-  # ─────────────────────────────────────────────
-  # JOB 2: Build Flutter Web and Deploy to Pages
-  # ─────────────────────────────────────────────
-  build-and-deploy:
-    name: Build Flutter Web + Deploy to GitHub Pages
+  # ────────────────────────────────────────────────────────
+  # STAGE 3: FLUTTER BUILD & DEPLOY
+  # ────────────────────────────────────────────────────────
+  deploy-web:
+    name: Build & Deploy Flutter Web
+    needs: [web-e2e-tests, mobile-e2e-tests]
     runs-on: ubuntu-latest
-    needs: selenium-web-tests
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
-      - name: Install Flutter Dependencies
+      - name: Install Flutter Deps
         run: flutter pub get
 
       - name: Build Flutter Web
