@@ -71,11 +71,39 @@ jobs:
           path: testing/report_mobile.xlsx
 
   # ────────────────────────────────────────────────────────
+  # STAGE 3: FLUTTER BUILD & DEPLOY
+  # ────────────────────────────────────────────────────────
+  deploy-github-pages:
+    name: "Deploy to GitHub Pages"
+    needs: [selenium-web-tests, mobile-e2e-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install Flutter Deps
+        run: flutter pub get
+
+      - name: Build Flutter Web
+        run: flutter build web --release --base-href "/bloodapp/"
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+
+  # ────────────────────────────────────────────────────────
   # STAGE 4: GENERATE FINAL CONSOLIDATED REPORTS
   # ────────────────────────────────────────────────────────
   generate-report:
     name: "Final Comprehensive Testing Report (.xlsx)"
-    needs: [deploy-github-pages]
+    needs: [selenium-web-tests, mobile-e2e-tests]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
