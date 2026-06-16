@@ -4,13 +4,20 @@ const { createExcelReport } = require('../utils/excelReport');
 
 describe('Blood App - MASTER TOTAL COVERAGE SUITE', function() {
     let driver;
-    let testResults = [];
+    let testResults = [
+        { id: 'INIT', category: 'System', name: 'Selenium Suite Initialized', status: 'Pass', details: 'Reporting system ready', timestamp: new Date().toISOString() }
+    ];
     const BASE_URL = "https://jaswanthkrishna802.github.io/bloodapp";
 
     before(async function() {
-        let options = new chrome.Options();
-        options.addArguments('--headless', '--no-sandbox', '--disable-dev-shm-usage');
-        driver = await new Builder().forBrowser('chrome').setChromeOptions(options).build();
+        try {
+            let options = new chrome.Options();
+            options.addArguments('--headless', '--no-sandbox', '--disable-dev-shm-usage');
+            driver = await new Builder().forBrowser('chrome').setChromeOptions(options).build();
+        } catch (err) {
+            testResults.push({ id: 'ERR-INIT', category: 'System', name: 'Browser Startup', status: 'Fail', details: `Startup Error: ${err.message}`, timestamp: new Date().toISOString() });
+            throw err;
+        }
     });
 
     after(async function() {

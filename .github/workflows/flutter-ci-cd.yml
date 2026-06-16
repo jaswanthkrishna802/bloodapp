@@ -36,8 +36,8 @@ jobs:
           npm test
         continue-on-error: true
 
-      - name: List Files (Diagnostic)
-        run: ls -R
+      - name: Verify Web Report
+        run: if [ -f report_web.xlsx ]; then echo "Web report exists!"; else echo "Web report MISSING!"; fi
         
       - name: Upload Web Excel Report
         uses: actions/upload-artifact@v4
