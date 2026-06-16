@@ -4,4 +4,3 @@ selenium
 pandas
 openpyxl
 pytest-html
-
