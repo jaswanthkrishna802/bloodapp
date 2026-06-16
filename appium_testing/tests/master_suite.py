@@ -1,7 +1,11 @@
 import pytest
 import datetime
-from appium.webdriver.common.appiumby import AppiumBy
-from ..utils.excel_report import create_excel_report
+import sys
+import os
+
+# Ensure utils can be imported when running from any directory
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from utils.excel_report import create_excel_report
 
 test_results = []
 
