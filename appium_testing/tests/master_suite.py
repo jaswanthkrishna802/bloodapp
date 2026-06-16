@@ -24,6 +24,13 @@ def record(test_id, page, element, action, func=None):
             "status": "Fail", "details": f"CRITICAL ERROR: {str(e)}", "timestamp": timestamp
         })
 
+@pytest.fixture
+def driver():
+    """Mock driver for dry-run testing environments."""
+    class MockDriver:
+        def implicitly_wait(self, time): pass
+    return MockDriver()
+
 @pytest.fixture(scope="session", autouse=True)
 def teardown():
     yield
