@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "556644431806",
+    "project_id": "smart-blood-108",
+    "storage_bucket": "smart-blood-108.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:556644431806:android:35dd1ccfa227df5a0f6bef",
+        "android_client_info": {
+          "package_name": "com.example.smart_blood"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-HRRmV-yZ3TbDD9N2LjkxlGjpXdftYSc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

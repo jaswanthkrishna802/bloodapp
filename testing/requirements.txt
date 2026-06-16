@@ -1,0 +1,7 @@
+pytest
+appium-python-client
+selenium
+pandas
+openpyxl
+pytest-html
+
