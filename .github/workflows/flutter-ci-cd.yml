@@ -1,12 +1,10 @@
-name: Blood App CI/CD - E2E Master Suite
-
+name: Blood App CI/CD - MASTER E2E
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
 
-# --- ADD PERMISSIONS FOR DEPLOYMENT ---
 permissions:
   contents: write
 
@@ -15,106 +13,87 @@ jobs:
   # STAGE 1: WEB E2E (Selenium)
   # ────────────────────────────────────────────────────────
   selenium-web-tests:
-    name: "Selenium E2E Web + API Tests (100 Tests)"
+    name: "Selenium E2E Web Tests"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-
       - name: Install Selenium Deps
         run: |
           cd selenium_testing
           npm install
-
       - name: Run Selenium Suite
         run: |
           cd selenium_testing
           npm test
         continue-on-error: true
-
-      - name: Verify Web Report
-        run: if [ -f report_web.xlsx ]; then echo "Web report exists!"; else echo "Web report MISSING!"; fi
-        
       - name: Upload Web Excel Report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: web-test-report-xlsx
-          path: "**/report_web.xlsx"
+          path: selenium_testing/report_web.xlsx
 
   # ────────────────────────────────────────────────────────
   # STAGE 2: MOBILE E2E (Appium)
   # ────────────────────────────────────────────────────────
   appium-mobile-tests:
-    name: "Appium Mobile Tests Dry-Run (105 Tests)"
+    name: "Appium Mobile Tests Dry-Run"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-
       - name: Install Appium Deps
         run: pip install -r appium_testing/requirements.txt
-
       - name: Run Appium Master Suite
         run: |
           pytest appium_testing/tests/master_suite.py
         continue-on-error: true
-
       - name: Upload Mobile Excel Report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: mobile-test-report-xlsx
-          path: "**/report_mobile.xlsx"
+          path: report_mobile.xlsx
 
   # ────────────────────────────────────────────────────────
   # STAGE 3: FLUTTER BUILD & DEPLOY
   # ────────────────────────────────────────────────────────
   deploy-github-pages:
     name: "Deploy to GitHub Pages"
-    needs: [selenium-web-tests, appium-mobile-tests]
+    needs: [selenium-web-tests]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-
       - name: Install Flutter Deps
         run: flutter pub get
-
       - name: Build Flutter Web
         run: flutter build web --release --base-href "/bloodapp/"
-
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/web
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
 
   # ────────────────────────────────────────────────────────
-  # STAGE 4: GENERATE FINAL CONSOLIDATED REPORTS
+  # STAGE 4: FINAL CONSOLIDATION
   # ────────────────────────────────────────────────────────
   generate-report:
-    name: "Final Comprehensive Testing Report (.xlsx)"
+    name: "Consolidate All Reports"
     needs: [selenium-web-tests, appium-mobile-tests]
+    if: always()
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Download Web & Mobile Reports
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
-      
-      - name: Archive Master Project Report
-        run: |
-          echo "All 11 test categories (Functional, UI, Security, etc.) have been processed."
-          echo "Web Report and Mobile Report are now available in the Artifacts tab."
+      - name: Status
+        run: echo "All reports are now available in the Artifacts tab overhead."
