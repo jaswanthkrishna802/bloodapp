@@ -1,11 +1,10 @@
 {
-  "name": "blood-web-tests",
+  "name": "blood-app-selenium-tests",
   "version": "1.0.0",
   "description": "Selenium E2E tests for Blood App",
   "main": "index.js",
   "scripts": {
-    "test": "mocha tests/**/*.js --timeout 60000",
-    "report": "node utils/generateReport.js"
+    "test": "mocha tests/**/*.js --timeout 60000"
   },
   "dependencies": {
     "selenium-webdriver": "^4.10.0",

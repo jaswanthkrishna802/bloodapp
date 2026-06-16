@@ -16,22 +16,15 @@ async function createExcelReport(testResults, filename = 'report_web.xlsx') {
 
     testResults.forEach(result => {
         const row = worksheet.addRow(result);
+        const statusCell = row.getCell('status');
         if (result.status === 'Pass') {
-            row.getCell('status').fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: 'FF90EE90' } // Light Green
-            };
+            statusCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF90EE90' } };
         } else {
-            row.getCell('status').fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: 'FFFFCCCB' } // Light Red
-            };
+            statusCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFCCCB' } };
         }
     });
 
-    const filePath = path.join(__dirname, '..', '..', filename);
+    const filePath = path.join(__dirname, '..', filename);
     await workbook.xlsx.writeFile(filePath);
     console.log(`Web Report generated: ${filePath}`);
 }

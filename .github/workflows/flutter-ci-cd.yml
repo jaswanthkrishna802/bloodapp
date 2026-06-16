@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   # ────────────────────────────────────────────────────────
-  # STAGE 1: WEB E2E (Node.js Selenium)
+  # STAGE 1: WEB E2E (Selenium)
   # ────────────────────────────────────────────────────────
   selenium-web-tests:
     name: "Selenium E2E Web + API Tests (100 Tests)"
@@ -25,14 +25,14 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install Selenium & Reporting Deps
+      - name: Install Selenium Deps
         run: |
-          cd testing/web
+          cd selenium_testing
           npm install
 
-      - name: Run Web E2E Suite
+      - name: Run Selenium Suite
         run: |
-          cd testing/web
+          cd selenium_testing
           npm test
         continue-on-error: true
 
@@ -40,12 +40,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: web-test-report-xlsx
-          path: testing/report_web.xlsx
+          path: selenium_testing/report_web.xlsx
 
   # ────────────────────────────────────────────────────────
-  # STAGE 2: MOBILE E2E (Python Appium)
+  # STAGE 2: MOBILE E2E (Appium)
   # ────────────────────────────────────────────────────────
-  mobile-e2e-tests:
+  appium-mobile-tests:
     name: "Appium Mobile Tests Dry-Run (105 Tests)"
     runs-on: ubuntu-latest
     steps:
@@ -56,19 +56,19 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Python Deps
-        run: pip install -r testing/requirements.txt
+      - name: Install Appium Deps
+        run: pip install -r appium_testing/requirements.txt
 
-      - name: Run Mobile E2E Suite
+      - name: Run Appium Suite
         run: |
-          pytest testing/mobile/test_mobile_login.py
+          pytest appium_testing/tests/test_mobile_login.py
         continue-on-error: true
 
       - name: Upload Mobile Excel Report
         uses: actions/upload-artifact@v4
         with:
           name: mobile-test-report-xlsx
-          path: testing/report_mobile.xlsx
+          path: appium_testing/report_mobile.xlsx
 
   # ────────────────────────────────────────────────────────
   # STAGE 3: FLUTTER BUILD & DEPLOY
