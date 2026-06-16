@@ -7,6 +7,7 @@ async function createExcelReport(testResults, filename = 'report_web.xlsx') {
 
     worksheet.columns = [
         { header: 'Test ID', key: 'id', width: 10 },
+        { header: 'Category', key: 'category', width: 20 },
         { header: 'Test Case Name', key: 'name', width: 40 },
         { header: 'Status', key: 'status', width: 15 },
         { header: 'Error/Details', key: 'details', width: 50 },
@@ -30,9 +31,9 @@ async function createExcelReport(testResults, filename = 'report_web.xlsx') {
         }
     });
 
-    const filePath = path.join(__dirname, '..', filename);
+    const filePath = path.join(__dirname, '..', '..', filename);
     await workbook.xlsx.writeFile(filePath);
-    console.log(`Report generated: ${filePath}`);
+    console.log(`Web Report generated: ${filePath}`);
 }
 
 module.exports = { createExcelReport };
